@@ -25,17 +25,17 @@ class PlushMars extends React.Component {
       days: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
         18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
       months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-      year: [moment().year()],
+      year: [2018],
       totalSeats: 20,
       departureDate: {
-        day: moment().day() + 1,
-        month: moment().month() + 1,
-        year: moment().year() + 1,
+        day: 1,
+        month: 1,
+        year: 2018,
       },
       returnDate: {
-        day: moment().day() + 1,
-        month: moment().month() + 1,
-        year: moment().year() + 1,
+        day: 1,
+        month: 1,
+        year: 2018,
       },
       numberOfSeats: 1,
       flightData: null,
@@ -135,10 +135,12 @@ class PlushMars extends React.Component {
       '-' +
       returnDateObject.year;
 
-      this.dateCheck(departureDate, returnDate);
+      if(this.dateCheck(this.state.departureDate, this.state.returnDate)){
+        return;
+      };
 
-      departureDate = 'departure_date=' + moment(departureDate).format().toString();
-      returnDate = 'arrival_date=' + moment(returnDate).format().toString();
+      departureDate = 'departure_date=' + departureDate;
+      returnDate = 'arrival_date=' + returnDate;
 
     let combinedQuery = departureDate + '?' + returnDate + '?' + seats;
 
@@ -154,7 +156,6 @@ class PlushMars extends React.Component {
       .then(data => data.json())
       .then(jsonData => {
         let filteredFlights = jsonData.filter(x => x.available_seats.length >= this.state.numberOfSeats);
-        console.log(filteredFlights);
         if(Object.keys(filteredFlights).length === 0){
           this.setState({
             noSeatsMessage: true,
@@ -173,7 +174,14 @@ class PlushMars extends React.Component {
     if(moment(depart_date).isAfter(return_date)){
       this.setState({
         departAfterReturnError: true,
-      })
+      });
+      return true;
+    }
+    else{
+      this.setState({
+        departAfterReturnError: false,
+      });
+      return false;
     }
   }
 
@@ -192,6 +200,17 @@ class PlushMars extends React.Component {
   //Called on new Search Button click, used to clear state
   clearFlight() {
     this.setState({
+      departureDate: {
+        day: 1,
+        month: 1,
+        year: 2018,
+      },
+      returnDate: {
+        day: 1,
+        month: 1,
+        year: 2018,
+      },
+      numberOfSeats: 1,
       flightFound: false,
       searchClicked: false,
       flightData: null,
@@ -247,6 +266,12 @@ class PlushMars extends React.Component {
           </div>
         )}
 
+        {this.state.departAfterReturnError && (
+          <div className="error">
+            Departing Flight Date must be BEFORE Returning Flight Date
+          </div>
+        )}
+
         {this.state.flightData && !this.state.flightBooked && !this.state.noSeatsMessage && (
           <div className="flight-booker">
             <FlightSelector bookFlight={this.bookFlight} flightData={this.state.flightData} />
@@ -254,7 +279,7 @@ class PlushMars extends React.Component {
         )}
 
         {this.state.noSeatsMessage && (
-          <div>
+          <div className="error">
             No SEATS FOUND!
           </div>
         )}
