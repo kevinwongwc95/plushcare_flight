@@ -40,8 +40,8 @@ class PlushMars extends React.Component {
       numberOfSeats: 1,
       flightData: null,
       searchClicked: false,
-      flightBooked: null,
-      flightBookedConf: null,
+      flightBooked: null, // flight booked information
+      flightBookedConf: null, // flight confirmation information
 
       //Error state variables
       currentDateError: false,
@@ -58,6 +58,7 @@ class PlushMars extends React.Component {
     this.bookFlight = this.bookFlight.bind(this);
   }
 
+  //function called when booking flight called
   bookFlight(flight){
     //When booking a flight create a post request
     const request = new Request(postapiUrl, {
@@ -82,6 +83,7 @@ class PlushMars extends React.Component {
     });
   }
 
+  //called to change the state date objects
   dateChanged(arrivalOrDeparture, d) {
     let date = {};
 
@@ -109,6 +111,7 @@ class PlushMars extends React.Component {
     }
   }
 
+  //function called when search button is clicked
   submitSearch() {
     let seats = 'number_seats=' + this.state.numberOfSeats.toString();
     let departureDateObject = this.state.departureDate;
@@ -135,6 +138,7 @@ class PlushMars extends React.Component {
       '-' +
       returnDateObject.year;
 
+      //check for date errors
       if(this.dateCheck(this.state.departureDate, this.state.returnDate)){
         return;
       };
@@ -142,6 +146,7 @@ class PlushMars extends React.Component {
       departureDate = 'departure_date=' + departureDate;
       returnDate = 'arrival_date=' + returnDate;
 
+    //create the query params for the GET request
     let combinedQuery = departureDate + '?' + returnDate + '?' + seats;
 
     const request = new Request(apiUrl + combinedQuery, {
@@ -155,21 +160,23 @@ class PlushMars extends React.Component {
     fetch(request)
       .then(data => data.json())
       .then(jsonData => {
+        //filter the response object for flights which have at least numberOfSeats length.
         let filteredFlights = jsonData.filter(x => x.available_seats.length >= this.state.numberOfSeats);
+        // if the response object after being filtered is empty, no flights can be found
+        // Update the satte object to notify in UI that no flights could be found
         if(Object.keys(filteredFlights).length === 0){
           this.setState({
             noSeatsMessage: true,
           })
         }
         this.setState({
-          //filter the flightData results and only populate the state with
-          //which meet the seat requirement
           flightData: filteredFlights,
           searchClicked: true,
         });
       });
   }
 
+  //called to check the two dates to see if there are errors
   dateCheck(depart_date, return_date){
     if(moment(depart_date).isAfter(return_date)){
       this.setState({
@@ -185,6 +192,8 @@ class PlushMars extends React.Component {
     }
   }
 
+  // used to set the state object for arrivalDate or returnDate based on parameter
+  // arrivalOrDeparture variable
   dateHandler(dateObject, arrivalOrDeparture) {
     if (arrivalOrDeparture == 'departure') {
       this.setState({ departureDate: dateObject });
@@ -193,6 +202,7 @@ class PlushMars extends React.Component {
     }
   }
 
+  //function called when the selection changes in the seat dropdown menu, used to update numberOfSeats
   seatChange(numberOfSeats) {
     this.setState({ numberOfSeats: numberOfSeats.target.value });
   }

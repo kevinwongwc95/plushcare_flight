@@ -1,15 +1,31 @@
 # Plushcare Takehome
 
+## Error Handeling
+When fixing the application, I assumed that `departure_date` had to occur before `return_date` or else the user would be prompted with an error message.
+
+## Assumptions
+When searching for flights, a GET request with `numberOFSeats`, `departure_date`, and `return_date`.
+
 ## Issues
-The components were originally maintaining their own state, when they could have been stateless, which is recommended per React guidelines/docs.
+The components were originally maintaining their own state, when they could have been stateless. I took the state out of the original components and maintained state in the outermost component `app.jsx`.
 
 
-## API
+### API
 I noticed the GET request to `API_URL/flights/search` was not working if either `depart_date` or `return_date` was provided as a parameter. From using Postman, and testing, it seemed like regardless of what was sent besides those parameters, random data would be returned.
 
-Additionally the data returned back in the GET request is seemingly random regardless of what query parameters sent to it.
+## Components
 
-The POST request instructions seem to be incorrect, again using Postman to test sending `{"flight_id": `1-2-3`}`, yielded a 422 error.
+#### `App.jsx`
+Outermost component of the app, which manages the state of the application which it passes down as props to sub-components.
+
+#### `DatePicker.jsx`
+Used to select Departure date and Returning flight date. Through an `onChange` function passed as props, the state in `App.jsx` is updated to reflect the current values in the fields.
+
+#### `FlightSelector.jsx`
+Displays in a table view the information about each flight returned when clicking the search button which fills the state with a json object of the response from a GET request. When clicking the buttton to book a flight it calls the `bookFlight`, which will then initiate a POST request with the flight_id of the flight associated with the button id, which is the same as the flight_id.
+
+#### `Confirmation.jsx`
+Rendered when the post request has returned successfully with information and updated `flightBookedConf` state variable. The component displays the basic information from the result of the post request.
 
 ## State variables & Management
 
