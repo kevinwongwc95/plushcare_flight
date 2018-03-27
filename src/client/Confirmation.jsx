@@ -8,10 +8,13 @@ class Confirmation extends React.Component {
     return (
       <div>
         <h3>
-          Flight Confirmed !
+          {this.props.flightBookedConf.confirmation_message}
         </h3>
         <h4>
-          Flight ID: {this.props.flightBooked.id}
+          Flight ID: {this.props.flightBookedConf.flight_id}
+        </h4>
+        <h4>
+          Confirmation ID: {this.props.flightBookedConf.confirmation_id}
         </h4>
         <h4>
             Departure Date :

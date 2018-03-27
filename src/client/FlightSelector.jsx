@@ -43,23 +43,6 @@ class FlightSelector extends React.Component {
       );
     }
 
-    // const listItems = flightList.map((val) => {
-    //   console.log(typeof val.craft_name);
-    //     <li>
-    //       1
-    //     </li>
-    // });
-
-    // const numbers = ['1', '2', '3', '4', '5'];
-    //
-    // const listItems = numbers.map((number) =>{
-    //   console.log(number);
-    //   <li key={number}>{number}</li>
-    // });
-    //
-    // console.log(listItems.length)
-    // console.log(listItems);
-
     return (
       <table className="table">
         <thead>
