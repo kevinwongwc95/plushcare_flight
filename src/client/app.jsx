@@ -13,6 +13,9 @@ import styles from './css/plushmars.scss';
 const apiUrl =
   'http://ec2-54-190-51-40.us-west-2.compute.amazonaws.com/flights/search/?';
 
+const postapiUrl =
+    'http://ec2-54-190-51-40.us-west-2.compute.amazonaws.com/flights/select/';
+
 class PlushMars extends React.Component {
   constructor(props) {
     super();
@@ -54,6 +57,26 @@ class PlushMars extends React.Component {
     this.setState({
       flightBooked: flight,
     });
+
+    const request = new Request(postapiUrl, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        flight_id: '123'
+      })
+    });
+
+    fetch(request)
+      .then(data => data.json())
+      .then(jsonData => {
+        console.log(jsonData)
+        })
+        .catch(res => {
+          console.log(res);
+        });
   }
 
   dateChanged(arrivalOrDeparture, d) {

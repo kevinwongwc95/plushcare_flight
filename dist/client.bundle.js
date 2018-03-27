@@ -116,6 +116,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var apiUrl = 'http://ec2-54-190-51-40.us-west-2.compute.amazonaws.com/flights/search/?';
 
+var postapiUrl = 'http://ec2-54-190-51-40.us-west-2.compute.amazonaws.com/flights/select/';
+
 var PlushMars = function (_React$Component) {
   _inherits(PlushMars, _React$Component);
 
@@ -163,6 +165,25 @@ var PlushMars = function (_React$Component) {
       console.log(flight);
       this.setState({
         flightBooked: flight
+      });
+
+      var request = new Request(postapiUrl, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          flight_id: '123'
+        })
+      });
+
+      fetch(request).then(function (data) {
+        return data.json();
+      }).then(function (jsonData) {
+        console.log(jsonData);
+      }).catch(function (res) {
+        console.log(res);
       });
     }
   }, {
