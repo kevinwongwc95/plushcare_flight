@@ -111,6 +111,15 @@ class PlushMars extends React.Component {
     }
   }
 
+  filterResults(data){
+    if(data.available_seats.length >= this.state.numberOfSeats &&
+      moment(this.state.departureDate).isSameOrBefore(data.depart_date) &&
+      moment(this.state.returnDate).isSameOrBefore(data.return_date)){
+        return true;
+      }
+    return false;
+  }
+
   //function called when search button is clicked
   submitSearch() {
     let seats = 'number_seats=' + this.state.numberOfSeats.toString();
@@ -160,8 +169,9 @@ class PlushMars extends React.Component {
     fetch(request)
       .then(data => data.json())
       .then(jsonData => {
+        console.log(jsonData);
         //filter the response object for flights which have at least numberOfSeats length.
-        let filteredFlights = jsonData.filter(x => x.available_seats.length >= this.state.numberOfSeats);
+        let filteredFlights = jsonData.filter(x => this.filterResults(x));
         // if the response object after being filtered is empty, no flights can be found
         // Update the satte object to notify in UI that no flights could be found
         if(Object.keys(filteredFlights).length === 0){
