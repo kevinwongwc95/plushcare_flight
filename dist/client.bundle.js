@@ -27733,6 +27733,10 @@ var _moment = __webpack_require__(0);
 
 var _moment2 = _interopRequireDefault(_moment);
 
+var _SeatSelection = __webpack_require__(363);
+
+var _SeatSelection2 = _interopRequireDefault(_SeatSelection);
+
 var _DatePicker = __webpack_require__(357);
 
 var _DatePicker2 = _interopRequireDefault(_DatePicker);
@@ -27794,12 +27798,13 @@ var PlushMars = function (_React$Component) {
       searchClicked: false,
       flightBooked: null, // flight booked information
       flightBookedConf: null, // flight confirmation information
+      flightSelected: null,
+      seatsBooked: [], //ff
 
       //Error state variables
       currentDateError: false,
       departAfterReturnError: false,
-      postError: false,
-      noSeatsMessage: false
+      postError: false
     };
 
     _this.submitSearch = _this.submitSearch.bind(_this);
@@ -27808,15 +27813,24 @@ var PlushMars = function (_React$Component) {
     _this.dateChanged = _this.dateChanged.bind(_this);
     _this.clearFlight = _this.clearFlight.bind(_this);
     _this.bookFlight = _this.bookFlight.bind(_this);
+    _this.selectFlight = _this.selectFlight.bind(_this);
+    _this.setSeatsBooked = _this.setSeatsBooked.bind(_this);
     return _this;
   }
 
-  //function called when booking flight called
-
-
   _createClass(PlushMars, [{
+    key: 'selectFlight',
+    value: function selectFlight(flight) {
+      this.setState({
+        flightSelected: flight
+      });
+    }
+
+    //function called when booking flight called
+
+  }, {
     key: 'bookFlight',
-    value: function bookFlight(flight) {
+    value: function bookFlight() {
       var _this2 = this;
 
       //When booking a flight create a post request
@@ -27828,7 +27842,8 @@ var PlushMars = function (_React$Component) {
         },
         body: JSON.stringify({
           //send the flight ID as a parameter in the bod y
-          flight_id: flight.id
+          flight_id: this.state.flightSelected.id,
+          seats: this.state.seatsBooked
         })
       });
 
@@ -27837,7 +27852,7 @@ var PlushMars = function (_React$Component) {
       }).then(function (jsonData) {
         _this2.setState({
           flightBookedConf: jsonData,
-          flightBooked: flight
+          flightBooked: _this2.state.flightSelected
         });
       });
     }
@@ -27868,14 +27883,6 @@ var PlushMars = function (_React$Component) {
       } else {
         this.setState({ returnDate: date });
       }
-    }
-  }, {
-    key: 'filterResults',
-    value: function filterResults(data) {
-      if (data.available_seats.length >= this.state.numberOfSeats && (0, _moment2.default)(this.state.departureDate).isSameOrBefore(data.depart_date) && (0, _moment2.default)(this.state.returnDate).isSameOrBefore(data.return_date)) {
-        return true;
-      }
-      return false;
     }
 
     //function called when search button is clicked
@@ -27923,19 +27930,14 @@ var PlushMars = function (_React$Component) {
         return data.json();
       }).then(function (jsonData) {
         console.log(jsonData);
-        //filter the response object for flights which have at least numberOfSeats length.
-        var filteredFlights = jsonData.filter(function (x) {
-          return _this3.filterResults(x);
-        });
-        // if the response object after being filtered is empty, no flights can be found
-        // Update the satte object to notify in UI that no flights could be found
-        if (Object.keys(filteredFlights).length === 0) {
+        if (Object.keys(jsonData).length === 0) {
           _this3.setState({
             noSeatsMessage: true
           });
         }
+        // Update the state object to notify in UI that no flights could be found
         _this3.setState({
-          flightData: filteredFlights,
+          flightData: jsonData,
           searchClicked: true
         });
       });
@@ -27999,18 +28001,49 @@ var PlushMars = function (_React$Component) {
         numberOfSeats: 1,
         flightFound: false,
         searchClicked: false,
-        flightData: null,
+        flightData: null, //response from get request listing all the flights
         flightBooked: null,
         flightBookedConf: null,
         currentDateError: false,
         departAfterReturnError: false,
         postError: false,
-        noSeatsMessage: false
+        noSeatsMessage: false,
+        flightSelected: null,
+        seatsBooked: []
+      });
+    }
+  }, {
+    key: 'renderNewSearchButton',
+    value: function renderNewSearchButton() {
+      if (this.state.searchClicked) {
+        return _react2.default.createElement(
+          'button',
+          { className: 'btn btn-warning', onClick: this.clearFlight },
+          'New Search'
+        );
+      }
+    }
+  }, {
+    key: 'setSeatsBooked',
+    value: function setSeatsBooked(seat_id) {
+      var seatList = this.state.seatsBooked;
+      if (seatList.includes(seat_id)) {
+        var index = seatList.indexOf(seat_id);
+        seatList.splice(index, 1);
+      } else {
+        seatList.push(seat_id);
+      }
+      console.log(seatList);
+      this.setState({
+        seatsBooked: seatList
       });
     }
   }, {
     key: 'render',
     value: function render() {
+      var _this4 = this;
+
+      console.log(this.state.flightSelected);
       return _react2.default.createElement(
         'div',
         { className: 'container' },
@@ -28086,10 +28119,20 @@ var PlushMars = function (_React$Component) {
           { className: 'error' },
           'Departing Flight Date must be BEFORE Returning Flight Date'
         ),
-        this.state.flightData && !this.state.flightBooked && !this.state.noSeatsMessage && _react2.default.createElement(
+        this.state.flightData && !this.state.flightBooked && !this.state.noSeatsMessage && !this.state.flightSelected && _react2.default.createElement(
           'div',
           { className: 'flight-booker' },
-          _react2.default.createElement(_FlightSelector2.default, { bookFlight: this.bookFlight, flightData: this.state.flightData })
+          _react2.default.createElement(_FlightSelector2.default, { selectFlight: this.selectFlight, flightData: this.state.flightData })
+        ),
+        this.state.flightSelected && !this.state.flightBookedConf && _react2.default.createElement(_SeatSelection2.default, { flightSelected: this.state.flightSelected,
+          setSeatsBooked: this.setSeatsBooked
+        }),
+        this.state.flightSelected && !this.state.flightBookedConf && _react2.default.createElement(
+          'button',
+          { onClick: function onClick() {
+              return _this4.bookFlight();
+            }, className: 'btn btn-primary' },
+          'Book Flight'
         ),
         this.state.noSeatsMessage && _react2.default.createElement(
           'div',
@@ -28097,16 +28140,7 @@ var PlushMars = function (_React$Component) {
           'No SEATS FOUND!'
         ),
         this.state.flightBookedConf && _react2.default.createElement(_Confirmation2.default, { flightBooked: this.state.flightBooked, flightBookedConf: this.state.flightBookedConf }),
-        this.state.searchClicked && !this.state.flightData && _react2.default.createElement(
-          'div',
-          { className: 'alert alert-danger', role: 'alert' },
-          'No Flights Found!'
-        ),
-        this.state.searchClicked && _react2.default.createElement(
-          'button',
-          { className: 'btn btn-warning', onClick: this.clearFlight },
-          'New Search'
-        )
+        this.renderNewSearchButton()
       );
     }
   }]);
@@ -43813,9 +43847,9 @@ var FlightSelector = function (_React$Component) {
             _react2.default.createElement(
               'button',
               { id: flight.id, onClick: function onClick() {
-                  return _this2.props.bookFlight(flight);
+                  _this2.props.selectFlight(flight);
                 }, className: 'btn btn-primary' },
-              'Book Flight'
+              'Select Flight'
             )
           )
         ));
@@ -43986,6 +44020,87 @@ exports.default = Confirmation;
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 362 */,
+/* 363 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(7);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(25);
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var SeatSelection = function (_React$Component) {
+  _inherits(SeatSelection, _React$Component);
+
+  function SeatSelection() {
+    _classCallCheck(this, SeatSelection);
+
+    return _possibleConstructorReturn(this, (SeatSelection.__proto__ || Object.getPrototypeOf(SeatSelection)).apply(this, arguments));
+  }
+
+  _createClass(SeatSelection, [{
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
+
+      var seatList = this.props.flightSelected.available_seats.map(function (seat) {
+        return _react2.default.createElement(
+          'div',
+          { key: seat.id },
+          _react2.default.createElement('input', { type: 'checkbox', id: seat.id, value: seat.position, onClick: function onClick() {
+              _this2.props.setSeatsBooked(seat.id);
+            } }),
+          _react2.default.createElement(
+            'label',
+            null,
+            'Seat Position ',
+            seat.position
+          )
+        );
+      });
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          'h2',
+          null,
+          'Select Seats!'
+        ),
+        _react2.default.createElement(
+          'div',
+          null,
+          seatList
+        )
+      );
+    }
+  }]);
+
+  return SeatSelection;
+}(_react2.default.Component);
+
+exports.default = SeatSelection;
 
 /***/ })
 /******/ ]);

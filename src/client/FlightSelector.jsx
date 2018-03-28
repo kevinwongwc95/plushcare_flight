@@ -37,7 +37,7 @@ class FlightSelector extends React.Component {
             {flight.available_seats.length}
           </td>
           <td>
-            <button id={flight.id} onClick={()=>this.props.bookFlight(flight)} className="btn btn-primary">Book Flight</button>
+            <button id={flight.id} onClick={()=>{this.props.selectFlight(flight)}} className="btn btn-primary">Select Flight</button>
           </td>
         </tr>
       );

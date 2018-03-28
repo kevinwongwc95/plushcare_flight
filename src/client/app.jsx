@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import moment from 'moment';
 
+import SeatSelection from './SeatSelection'
 import DatePicker from './DatePicker';
 import SeatPicker from './SeatPicker';
 import FlightSelector from './FlightSelector';
@@ -42,12 +43,13 @@ class PlushMars extends React.Component {
       searchClicked: false,
       flightBooked: null, // flight booked information
       flightBookedConf: null, // flight confirmation information
+      flightSelected: null,
+      seatsBooked: [], //ff
 
       //Error state variables
       currentDateError: false,
       departAfterReturnError: false,
       postError: false,
-      noSeatsMessage: false,
     };
 
     this.submitSearch = this.submitSearch.bind(this);
@@ -56,10 +58,18 @@ class PlushMars extends React.Component {
     this.dateChanged = this.dateChanged.bind(this);
     this.clearFlight = this.clearFlight.bind(this);
     this.bookFlight = this.bookFlight.bind(this);
+    this.selectFlight = this.selectFlight.bind(this);
+    this.setSeatsBooked = this.setSeatsBooked.bind(this);
+  }
+
+  selectFlight(flight){
+    this.setState({
+      flightSelected: flight,
+    })
   }
 
   //function called when booking flight called
-  bookFlight(flight){
+  bookFlight(){
     //When booking a flight create a post request
     const request = new Request(postapiUrl, {
       method: 'POST',
@@ -69,7 +79,8 @@ class PlushMars extends React.Component {
       },
       body: JSON.stringify({
         //send the flight ID as a parameter in the bod y
-        flight_id: flight.id,
+        flight_id: this.state.flightSelected.id,
+        seats: this.state.seatsBooked,
       })
     });
 
@@ -78,7 +89,7 @@ class PlushMars extends React.Component {
     .then(jsonData => {
       this.setState({
         flightBookedConf: jsonData,
-        flightBooked: flight,
+        flightBooked: this.state.flightSelected,
       });
     });
   }
@@ -109,15 +120,6 @@ class PlushMars extends React.Component {
     } else {
       this.setState({ returnDate: date });
     }
-  }
-
-  filterResults(data){
-    if(data.available_seats.length >= this.state.numberOfSeats &&
-      moment(this.state.departureDate).isSameOrBefore(data.depart_date) &&
-      moment(this.state.returnDate).isSameOrBefore(data.return_date)){
-        return true;
-      }
-    return false;
   }
 
   //function called when search button is clicked
@@ -170,17 +172,14 @@ class PlushMars extends React.Component {
       .then(data => data.json())
       .then(jsonData => {
         console.log(jsonData);
-        //filter the response object for flights which have at least numberOfSeats length.
-        let filteredFlights = jsonData.filter(x => this.filterResults(x));
-        // if the response object after being filtered is empty, no flights can be found
-        // Update the satte object to notify in UI that no flights could be found
-        if(Object.keys(filteredFlights).length === 0){
-          this.setState({
-            noSeatsMessage: true,
-          })
-        }
+        if(Object.keys(jsonData).length === 0){
+         this.setState({
+           noSeatsMessage: true,
+         })
+       }
+        // Update the state object to notify in UI that no flights could be found
         this.setState({
-          flightData: filteredFlights,
+          flightData: jsonData,
           searchClicked: true,
         });
       });
@@ -233,17 +232,45 @@ class PlushMars extends React.Component {
       numberOfSeats: 1,
       flightFound: false,
       searchClicked: false,
-      flightData: null,
+      flightData: null, //response from get request listing all the flights
       flightBooked: null,
       flightBookedConf: null,
       currentDateError: false,
       departAfterReturnError: false,
       postError: false,
       noSeatsMessage: false,
+      flightSelected: null,
+      seatsBooked: [],
     });
   }
 
+  renderNewSearchButton(){
+    if(this.state.searchClicked){
+      return(
+        <button className="btn btn-warning" onClick={this.clearFlight}>
+          New Search
+        </button>
+      );
+    }
+  }
+
+  setSeatsBooked(seat_id){
+    var seatList = this.state.seatsBooked;
+    if(seatList.includes(seat_id)){
+      const index = seatList.indexOf(seat_id);
+      seatList.splice(index, 1);
+    }
+    else{
+      seatList.push(seat_id);
+    }
+    console.log(seatList)
+    this.setState({
+      seatsBooked: seatList,
+    })
+  }
+
   render() {
+    console.log(this.state.flightSelected);
     return (
       <div className="container">
         <div className="row text-center">
@@ -292,10 +319,22 @@ class PlushMars extends React.Component {
           </div>
         )}
 
-        {this.state.flightData && !this.state.flightBooked && !this.state.noSeatsMessage && (
+        {this.state.flightData && !this.state.flightBooked && !this.state.noSeatsMessage && !this.state.flightSelected &&(
           <div className="flight-booker">
-            <FlightSelector bookFlight={this.bookFlight} flightData={this.state.flightData} />
+            <FlightSelector selectFlight={this.selectFlight} flightData={this.state.flightData} />
           </div>
+        )}
+
+        {this.state.flightSelected && !this.state.flightBookedConf &&(
+            <SeatSelection flightSelected={this.state.flightSelected}
+              setSeatsBooked={this.setSeatsBooked}
+            />
+        )}
+
+        {this.state.flightSelected && !this.state.flightBookedConf &&(
+          <button onClick={()=>this.bookFlight()}  className="btn btn-primary">
+            Book Flight
+          </button>
         )}
 
         {this.state.noSeatsMessage && (
@@ -308,17 +347,7 @@ class PlushMars extends React.Component {
           <Confirmation flightBooked={this.state.flightBooked} flightBookedConf={this.state.flightBookedConf}/>
         }
 
-        {this.state.searchClicked && !this.state.flightData && (
-            <div className="alert alert-danger" role="alert">
-              No Flights Found!
-            </div>
-          )}
-
-        {this.state.searchClicked && (
-          <button className="btn btn-warning" onClick={this.clearFlight}>
-            New Search
-          </button>
-        )}
+        {this.renderNewSearchButton()}
       </div>
     );
   }
