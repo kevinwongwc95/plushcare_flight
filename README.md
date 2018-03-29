@@ -15,7 +15,7 @@ The components were originally maintaining their own state, when they could have
 I noticed the GET request to `API_URL/flights/search` was not working if either `depart_date` or `return_date` was provided as a parameter. From using Postman, and testing, it seemed like regardless of what was sent besides those parameters, random data would be returned.
 
 #### GET request
-When searching for flights, a GET request was sent with `numberOFSeats`, `departure_date`, and `return_date`.
+When searching for flights, a GET request was sent with `numberOfSeats`, `departure_date`, and `return_date`.
 
 #### POST request
 When sending a POST request to book a flight, the id of the flight booked was sent, along with a list of the `seat_id` which were being booked.
