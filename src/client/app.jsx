@@ -106,10 +106,12 @@ class PlushMars extends React.Component {
   dateChanged(arrivalOrDeparture, d) {
     let date = {};
 
+    //set the state date of departure or returndate
     arrivalOrDeparture === 'departure'
       ? (date = this.state.departureDate)
       : (date = this.state.returnDate);
 
+    //set by attribute name which was passed
     switch (d.target.name) {
       case 'day':
         date['day'] = d.target.value;
@@ -194,6 +196,7 @@ class PlushMars extends React.Component {
         });
       })
       .catch(()=>{
+        //if the request failed, set the getError state variable to true
         this.setState({
           getError: true,
         })
@@ -259,47 +262,6 @@ class PlushMars extends React.Component {
     });
   }
 
-  renderPostError(){
-    return(
-      this.state.postError &&(
-        <div className="error">
-          Error Booking Flight!
-        </div>
-      )
-    );
-  }
-
-  //function which renders the Search Butto
-  renderNewSearchButton(){
-    if(this.state.searchClicked){
-      return(
-        <button className="btn btn-warning" onClick={this.clearFlight}>
-          New Search
-        </button>
-      );
-    }
-  }
-
-  renderGetError(){
-    return(
-      this.state.getError && (
-        <div className="error">
-          Unable to search for flights!
-        </div>
-      )
-    );
-  }
-
-  renderDepartAfterReturnError(){
-    return(
-      this.state.departAfterReturnError && (
-        <div className="error">
-          Departing Flight Date must be BEFORE Returning Flight Date
-        </div>
-      )
-    )
-  }
-
   //function which is called when checkboxes are checked in seat selection menu.
   // sets the state of which seats are booked
   setSeatsBooked(seat_id){
@@ -314,6 +276,60 @@ class PlushMars extends React.Component {
     this.setState({
       seatsBooked: seatList,
     })
+  }
+
+  //function which renders the POST error
+  renderPostError(){
+    return(
+      this.state.postError &&(
+        <div className="error">
+          Error Booking Flight!
+        </div>
+      )
+    );
+  }
+
+  //function which renders the Search Button
+  renderNewSearchButton(){
+    if(this.state.searchClicked){
+      return(
+        <button className="btn btn-warning" onClick={this.clearFlight}>
+          New Search
+        </button>
+      );
+    }
+  }
+
+  //function to render the GET error message
+  renderGetError(){
+    return(
+      this.state.getError && (
+        <div className="error">
+          Unable to search for flights!
+        </div>
+      )
+    );
+  }
+
+  //function to render the depart return error
+  renderDepartAfterReturnError(){
+    return(
+      this.state.departAfterReturnError && (
+        <div className="error">
+          Departing Flight Date must be BEFORE Returning Flight Date
+        </div>
+      )
+    )
+  }
+
+  renderNoSeatsMessage(){
+    return(
+      this.state.noSeatsMessage && (
+        <div className="error">
+          No SEATS FOUND!
+        </div>
+      )
+    );
   }
 
   render() {
@@ -387,11 +403,7 @@ class PlushMars extends React.Component {
             </button>
           )}
 
-          {this.state.noSeatsMessage && (
-            <div className="error">
-              No SEATS FOUND!
-            </div>
-          )}
+          {this.renderNoSeatsMessage()}
 
           {this.state.flightBookedConf &&
             <Confirmation flightBooked={this.state.flightBooked}
@@ -401,7 +413,6 @@ class PlushMars extends React.Component {
           }
 
           {this.renderNewSearchButton()}
-
           {this.renderPostError()}
 
         </div>

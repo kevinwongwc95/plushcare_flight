@@ -27860,8 +27860,10 @@ var PlushMars = function (_React$Component) {
     value: function dateChanged(arrivalOrDeparture, d) {
       var date = {};
 
+      //set the state date of departure or returndate
       arrivalOrDeparture === 'departure' ? date = this.state.departureDate : date = this.state.returnDate;
 
+      //set by attribute name which was passed
       switch (d.target.name) {
         case 'day':
           date['day'] = d.target.value;
@@ -27939,6 +27941,7 @@ var PlushMars = function (_React$Component) {
           searchClicked: true
         });
       }).catch(function () {
+        //if the request failed, set the getError state variable to true
         _this3.setState({
           getError: true
         });
@@ -28014,47 +28017,6 @@ var PlushMars = function (_React$Component) {
         seatsBooked: []
       });
     }
-  }, {
-    key: 'renderPostError',
-    value: function renderPostError() {
-      return this.state.postError && _react2.default.createElement(
-        'div',
-        { className: 'error' },
-        'Error Booking Flight!'
-      );
-    }
-
-    //function which renders the Search Butto
-
-  }, {
-    key: 'renderNewSearchButton',
-    value: function renderNewSearchButton() {
-      if (this.state.searchClicked) {
-        return _react2.default.createElement(
-          'button',
-          { className: 'btn btn-warning', onClick: this.clearFlight },
-          'New Search'
-        );
-      }
-    }
-  }, {
-    key: 'renderGetError',
-    value: function renderGetError() {
-      return this.state.getError && _react2.default.createElement(
-        'div',
-        { className: 'error' },
-        'Unable to search for flights!'
-      );
-    }
-  }, {
-    key: 'renderDepartAfterReturnError',
-    value: function renderDepartAfterReturnError() {
-      return this.state.departAfterReturnError && _react2.default.createElement(
-        'div',
-        { className: 'error' },
-        'Departing Flight Date must be BEFORE Returning Flight Date'
-      );
-    }
 
     //function which is called when checkboxes are checked in seat selection menu.
     // sets the state of which seats are booked
@@ -28072,6 +28034,65 @@ var PlushMars = function (_React$Component) {
       this.setState({
         seatsBooked: seatList
       });
+    }
+
+    //function which renders the POST error
+
+  }, {
+    key: 'renderPostError',
+    value: function renderPostError() {
+      return this.state.postError && _react2.default.createElement(
+        'div',
+        { className: 'error' },
+        'Error Booking Flight!'
+      );
+    }
+
+    //function which renders the Search Button
+
+  }, {
+    key: 'renderNewSearchButton',
+    value: function renderNewSearchButton() {
+      if (this.state.searchClicked) {
+        return _react2.default.createElement(
+          'button',
+          { className: 'btn btn-warning', onClick: this.clearFlight },
+          'New Search'
+        );
+      }
+    }
+
+    //function to render the GET error message
+
+  }, {
+    key: 'renderGetError',
+    value: function renderGetError() {
+      return this.state.getError && _react2.default.createElement(
+        'div',
+        { className: 'error' },
+        'Unable to search for flights!'
+      );
+    }
+
+    //function to render the depart return error
+
+  }, {
+    key: 'renderDepartAfterReturnError',
+    value: function renderDepartAfterReturnError() {
+      return this.state.departAfterReturnError && _react2.default.createElement(
+        'div',
+        { className: 'error' },
+        'Departing Flight Date must be BEFORE Returning Flight Date'
+      );
+    }
+  }, {
+    key: 'renderNoSeatsMessage',
+    value: function renderNoSeatsMessage() {
+      return this.state.noSeatsMessage && _react2.default.createElement(
+        'div',
+        { className: 'error' },
+        'No SEATS FOUND!'
+      );
     }
   }, {
     key: 'render',
@@ -28178,11 +28199,7 @@ var PlushMars = function (_React$Component) {
               }, className: 'btn btn-primary', disabled: this.state.seatsBooked.length == 0 },
             'Book Flight'
           ),
-          this.state.noSeatsMessage && _react2.default.createElement(
-            'div',
-            { className: 'error' },
-            'No SEATS FOUND!'
-          ),
+          this.renderNoSeatsMessage(),
           this.state.flightBookedConf && _react2.default.createElement(_Confirmation2.default, { flightBooked: this.state.flightBooked,
             flightBookedConf: this.state.flightBookedConf,
             seatsBooked: this.state.seatsBooked
