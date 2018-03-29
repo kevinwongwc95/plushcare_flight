@@ -11,7 +11,7 @@ class DatePicker extends React.Component {
          { this.props.months.map((item, index) => {
           return <option key={item} value={item}>{item}</option>
          })}
-         </select>
+        </select>
         <label>Day</label>
         <select name="day" onChange={(e)=>this.props.dateChanged(this.props.arrivalOrDeparture,e)}>
          { this.props.days.map((item, index) => {

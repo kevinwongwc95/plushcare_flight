@@ -47,9 +47,9 @@ class PlushMars extends React.Component {
       seatsBooked: [], //list of seat IDs which the user wants to book for flight
 
       //Error state variables
-      currentDateError: false,
       departAfterReturnError: false,
       postError: false,
+      getError: false,
     };
 
     this.submitSearch = this.submitSearch.bind(this);
@@ -70,6 +70,9 @@ class PlushMars extends React.Component {
 
   //function called when booking flight called
   bookFlight(){
+    this.setState({
+      postError: false,
+    })
     //When booking a flight create a post request
     const request = new Request(postapiUrl, {
       method: 'POST',
@@ -91,6 +94,11 @@ class PlushMars extends React.Component {
         flightBookedConf: jsonData,
         flightBooked: this.state.flightSelected,
       });
+    })
+    .catch(()=>{
+      this.setState({
+        postError: true,
+      })
     });
   }
 
@@ -124,6 +132,9 @@ class PlushMars extends React.Component {
 
   //function called when search button is clicked
   submitSearch() {
+    this.setState({
+      getError: false,
+    });
     let seats = 'number_seats=' + this.state.numberOfSeats.toString();
     let departureDateObject = this.state.departureDate;
     let returnDateObject = this.state.returnDate;
@@ -171,7 +182,6 @@ class PlushMars extends React.Component {
     fetch(request)
       .then(data => data.json())
       .then(jsonData => {
-        console.log(jsonData);
         if(Object.keys(jsonData).length === 0){
          this.setState({
            noSeatsMessage: true,
@@ -182,6 +192,11 @@ class PlushMars extends React.Component {
           flightData: jsonData,
           searchClicked: true,
         });
+      })
+      .catch(()=>{
+        this.setState({
+          getError: true,
+        })
       });
   }
 
@@ -230,18 +245,28 @@ class PlushMars extends React.Component {
         year: 2018,
       },
       numberOfSeats: 1,
-      flightFound: false,
       searchClicked: false,
       flightData: null, //response from get request listing all the flights
       flightBooked: null,
       flightBookedConf: null,
-      currentDateError: false,
+
       departAfterReturnError: false,
       postError: false,
+      getError: false,
       noSeatsMessage: false,
       flightSelected: null,
       seatsBooked: [],
     });
+  }
+
+  renderPostError(){
+    return(
+      this.state.postError &&(
+        <div className="error">
+          Error Booking Flight!
+        </div>
+      )
+    );
   }
 
   //function which renders the Search Butto
@@ -253,6 +278,26 @@ class PlushMars extends React.Component {
         </button>
       );
     }
+  }
+
+  renderGetError(){
+    return(
+      this.state.getError && (
+        <div className="error">
+          Unable to search for flights!
+        </div>
+      )
+    );
+  }
+
+  renderDepartAfterReturnError(){
+    return(
+      this.state.departAfterReturnError && (
+        <div className="error">
+          Departing Flight Date must be BEFORE Returning Flight Date
+        </div>
+      )
+    )
   }
 
   //function which is called when checkboxes are checked in seat selection menu.
@@ -272,87 +317,95 @@ class PlushMars extends React.Component {
   }
 
   render() {
-    console.log(this.state.flightSelected);
     return (
-      <div className="container">
-        <div className="row text-center">
+      <div>
+        <div className="jumbotron jumbotron-fluid text-center">
           <h1> Welcome to PlushMars!</h1>
         </div>
-        {!this.state.searchClicked && !this.state.flightData && (
-          <div className="flight-finder">
-            <div className="row">
-              <h2>Departure Date</h2>
-              <DatePicker
-                days={this.state.days}
-                months={this.state.months}
-                year={this.state.year}
-                arrivalOrDeparture="departure"
-                dateChanged={this.dateChanged}
-              />
+        <div id="wrapper" className="container">
+          {!this.state.searchClicked && !this.state.flightData && (
+            <div className="flight-finder">
+              <div className="row dateselector">
+              <div className="col-md-6 text-center">
+                <h1>Departure Date</h1>
+                <DatePicker
+                  days={this.state.days}
+                  months={this.state.months}
+                  year={this.state.year}
+                  arrivalOrDeparture="departure"
+                  dateChanged={this.dateChanged}
+                />
+              </div>
+              <div className="col-md-6 text-center">
+                <h1>Return Date</h1>
+                <DatePicker
+                  days={this.state.days}
+                  months={this.state.months}
+                  year={this.state.year}
+                  arrivalOrDeparture="arrival"
+                  dateChanged={this.dateChanged}
+                />
+              </div>
             </div>
-            <div className="row">
-              <h2>Return Date</h2>
-              <DatePicker
-                days={this.state.days}
-                months={this.state.months}
-                year={this.state.year}
-                arrivalOrDeparture="arrival"
-                dateChanged={this.dateChanged}
-              />
+              <div className="row">
+                <div className="col-md-6 text-center date-picker">
+                <h1>Number of Seats</h1>
+                <SeatPicker
+                  totalSeats={this.state.totalSeats}
+                  seatChange={this.seatChange}
+                />
+              </div>
+              <div className="col-md-6 text-center">
+                <button className="btn btn-primary btn-lg findButton" onClick={this.submitSearch}>
+                  Find flights
+                </button>
+                {this.renderGetError()}
+              </div>
+              </div>
             </div>
-            <div className="row">
-              <h3>Number of Seats</h3>
-              <SeatPicker
-                totalSeats={this.state.totalSeats}
-                seatChange={this.seatChange}
-              />
-            </div>
-            <div className="row">
-              <button className="btn btn-primary" onClick={this.submitSearch}>
-                Find flights
-              </button>
-            </div>
-          </div>
-        )}
+          )}
 
-        {this.state.departAfterReturnError && (
-          <div className="error">
-            Departing Flight Date must be BEFORE Returning Flight Date
-          </div>
-        )}
+          {this.renderDepartAfterReturnError()}
 
-        {this.state.flightData && !this.state.flightBooked && !this.state.noSeatsMessage && !this.state.flightSelected &&(
-          <div className="flight-booker">
-            <FlightSelector selectFlight={this.selectFlight} flightData={this.state.flightData} />
-          </div>
-        )}
+          {this.state.flightData && !this.state.flightBooked && !this.state.noSeatsMessage && !this.state.flightSelected &&(
+            <div className="flight-booker">
+              <FlightSelector selectFlight={this.selectFlight} flightData={this.state.flightData} />
+            </div>
+          )}
 
-        {this.state.flightSelected && !this.state.flightBookedConf &&(
-            <SeatSelection
-              flightSelected={this.state.flightSelected}
-              setSeatsBooked={this.setSeatsBooked}
+          {this.state.flightSelected && !this.state.flightBookedConf &&(
+              <SeatSelection
+                flightSelected={this.state.flightSelected}
+                setSeatsBooked={this.setSeatsBooked}
+                seatsBooked={this.state.seatsBooked}
+              />
+          )}
+
+          {this.state.flightSelected && !this.state.flightBookedConf &&(
+            <button onClick={()=>this.bookFlight()}  className="btn btn-primary" disabled={this.state.seatsBooked.length==0}>
+              Book Flight
+            </button>
+          )}
+
+          {this.state.noSeatsMessage && (
+            <div className="error">
+              No SEATS FOUND!
+            </div>
+          )}
+
+          {this.state.flightBookedConf &&
+            <Confirmation flightBooked={this.state.flightBooked}
+              flightBookedConf={this.state.flightBookedConf}
               seatsBooked={this.state.seatsBooked}
             />
-        )}
+          }
 
-        {this.state.flightSelected && !this.state.flightBookedConf &&(
-          <button onClick={()=>this.bookFlight()}  className="btn btn-primary">
-            Book Flight
-          </button>
-        )}
+          {this.renderNewSearchButton()}
 
-        {this.state.noSeatsMessage && (
-          <div className="error">
-            No SEATS FOUND!
-          </div>
-        )}
+          {this.renderPostError()}
 
-        {this.state.flightBookedConf &&
-          <Confirmation flightBooked={this.state.flightBooked} flightBookedConf={this.state.flightBookedConf}/>
-        }
-
-        {this.renderNewSearchButton()}
-      </div>
+        </div>
+    </div>
     );
   }
 }

@@ -1,33 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Moment from 'react-moment';
+import moment from 'moment';
+
+import TotalCost from './TotalCost';
+import FlightInfo from './FlightInfo';
 
 class Confirmation extends React.Component {
   render() {
-    console.log(this.props.flightBooked)
     return (
       <div>
+        <h1>
+          Flight Booked !
+        </h1>
         <h3>
           {this.props.flightBookedConf.confirmation_message}
         </h3>
         <h4>
-          Flight ID: {this.props.flightBookedConf.flight_id}
-        </h4>
-        <h4>
           Confirmation ID: {this.props.flightBookedConf.confirmation_id}
         </h4>
-        <h4>
-            Departure Date :
-            <Moment>
-              {this.props.flightBooked.depart_date}
-            </Moment>
-        </h4>
-        <h4>
-          Return Date :
-          <Moment>
-            {this.props.flightBooked.return_date}
-          </Moment>
-        </h4>
+        <FlightInfo flightSelected={this.props.flightBooked}/>
+        <TotalCost flightSelected={this.props.flightBooked} seatsBooked={this.props.seatsBooked}/>
       </div>
     )
   }
