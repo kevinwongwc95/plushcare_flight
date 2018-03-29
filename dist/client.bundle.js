@@ -27733,27 +27733,27 @@ var _moment = __webpack_require__(0);
 
 var _moment2 = _interopRequireDefault(_moment);
 
-var _SeatSelection = __webpack_require__(363);
+var _SeatSelection = __webpack_require__(357);
 
 var _SeatSelection2 = _interopRequireDefault(_SeatSelection);
 
-var _DatePicker = __webpack_require__(357);
+var _DatePicker = __webpack_require__(358);
 
 var _DatePicker2 = _interopRequireDefault(_DatePicker);
 
-var _SeatPicker = __webpack_require__(358);
+var _SeatPicker = __webpack_require__(359);
 
 var _SeatPicker2 = _interopRequireDefault(_SeatPicker);
 
-var _FlightSelector = __webpack_require__(359);
+var _FlightSelector = __webpack_require__(360);
 
 var _FlightSelector2 = _interopRequireDefault(_FlightSelector);
 
-var _Confirmation = __webpack_require__(360);
+var _Confirmation = __webpack_require__(361);
 
 var _Confirmation2 = _interopRequireDefault(_Confirmation);
 
-var _plushmars = __webpack_require__(361);
+var _plushmars = __webpack_require__(362);
 
 var _plushmars2 = _interopRequireDefault(_plushmars);
 
@@ -27793,13 +27793,13 @@ var PlushMars = function (_React$Component) {
         month: 1,
         year: 2018
       },
-      numberOfSeats: 1,
-      flightData: null,
-      searchClicked: false,
+      numberOfSeats: 1, //number of seats selected in the dropdown box
+      flightData: null, //data set back from get request after searching for flight
+      searchClicked: false, //set to true when search button clicked
       flightBooked: null, // flight booked information
       flightBookedConf: null, // flight confirmation information
       flightSelected: null,
-      seatsBooked: [], //ff
+      seatsBooked: [], //list of seat IDs which the user wants to book for flight
 
       //Error state variables
       currentDateError: false,
@@ -27841,7 +27841,7 @@ var PlushMars = function (_React$Component) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          //send the flight ID as a parameter in the bod y
+          //send the flight ID as a parameter in the body
           flight_id: this.state.flightSelected.id,
           seats: this.state.seatsBooked
         })
@@ -28012,6 +28012,9 @@ var PlushMars = function (_React$Component) {
         seatsBooked: []
       });
     }
+
+    //function which renders the Search Butto
+
   }, {
     key: 'renderNewSearchButton',
     value: function renderNewSearchButton() {
@@ -28023,6 +28026,10 @@ var PlushMars = function (_React$Component) {
         );
       }
     }
+
+    //function which is called when checkboxes are checked in seat selection menu.
+    // sets the state of which seats are booked
+
   }, {
     key: 'setSeatsBooked',
     value: function setSeatsBooked(seat_id) {
@@ -28033,7 +28040,6 @@ var PlushMars = function (_React$Component) {
       } else {
         seatList.push(seat_id);
       }
-      console.log(seatList);
       this.setState({
         seatsBooked: seatList
       });
@@ -28124,8 +28130,10 @@ var PlushMars = function (_React$Component) {
           { className: 'flight-booker' },
           _react2.default.createElement(_FlightSelector2.default, { selectFlight: this.selectFlight, flightData: this.state.flightData })
         ),
-        this.state.flightSelected && !this.state.flightBookedConf && _react2.default.createElement(_SeatSelection2.default, { flightSelected: this.state.flightSelected,
-          setSeatsBooked: this.setSeatsBooked
+        this.state.flightSelected && !this.state.flightBookedConf && _react2.default.createElement(_SeatSelection2.default, {
+          flightSelected: this.state.flightSelected,
+          setSeatsBooked: this.setSeatsBooked,
+          seatsBooked: this.state.seatsBooked
         }),
         this.state.flightSelected && !this.state.flightBookedConf && _react2.default.createElement(
           'button',
@@ -43585,6 +43593,91 @@ var _reactDom = __webpack_require__(25);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
+var _TotalCost = __webpack_require__(364);
+
+var _TotalCost2 = _interopRequireDefault(_TotalCost);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var SeatSelection = function (_React$Component) {
+  _inherits(SeatSelection, _React$Component);
+
+  function SeatSelection() {
+    _classCallCheck(this, SeatSelection);
+
+    return _possibleConstructorReturn(this, (SeatSelection.__proto__ || Object.getPrototypeOf(SeatSelection)).apply(this, arguments));
+  }
+
+  _createClass(SeatSelection, [{
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
+
+      var seatList = this.props.flightSelected.available_seats.map(function (seat) {
+        return _react2.default.createElement(
+          'div',
+          { key: seat.id },
+          _react2.default.createElement('input', { type: 'checkbox', id: seat.id, value: seat.position, onClick: function onClick() {
+              _this2.props.setSeatsBooked(seat.id);
+            } }),
+          _react2.default.createElement(
+            'label',
+            null,
+            'Seat Position ',
+            seat.position
+          )
+        );
+      });
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          'h2',
+          null,
+          'Select Seats!'
+        ),
+        _react2.default.createElement(
+          'div',
+          null,
+          seatList
+        ),
+        _react2.default.createElement(_TotalCost2.default, { flightSelected: this.props.flightSelected, seatsBooked: this.props.seatsBooked })
+      );
+    }
+  }]);
+
+  return SeatSelection;
+}(_react2.default.Component);
+
+exports.default = SeatSelection;
+
+/***/ }),
+/* 358 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(7);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(25);
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -43674,7 +43767,7 @@ var DatePicker = function (_React$Component) {
 exports.default = DatePicker;
 
 /***/ }),
-/* 358 */
+/* 359 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43743,7 +43836,7 @@ var SeatPicker = function (_React$Component) {
 exports.default = SeatPicker;
 
 /***/ }),
-/* 359 */
+/* 360 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43921,7 +44014,7 @@ var FlightSelector = function (_React$Component) {
 exports.default = FlightSelector;
 
 /***/ }),
-/* 360 */
+/* 361 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44016,14 +44109,14 @@ var Confirmation = function (_React$Component) {
 exports.default = Confirmation;
 
 /***/ }),
-/* 361 */
+/* 362 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 362 */,
-/* 363 */
+/* 363 */,
+/* 364 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44051,56 +44144,31 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var SeatSelection = function (_React$Component) {
-  _inherits(SeatSelection, _React$Component);
+var TotalCost = function (_React$Component) {
+  _inherits(TotalCost, _React$Component);
 
-  function SeatSelection() {
-    _classCallCheck(this, SeatSelection);
+  function TotalCost() {
+    _classCallCheck(this, TotalCost);
 
-    return _possibleConstructorReturn(this, (SeatSelection.__proto__ || Object.getPrototypeOf(SeatSelection)).apply(this, arguments));
+    return _possibleConstructorReturn(this, (TotalCost.__proto__ || Object.getPrototypeOf(TotalCost)).apply(this, arguments));
   }
 
-  _createClass(SeatSelection, [{
+  _createClass(TotalCost, [{
     key: 'render',
     value: function render() {
-      var _this2 = this;
-
-      var seatList = this.props.flightSelected.available_seats.map(function (seat) {
-        return _react2.default.createElement(
-          'div',
-          { key: seat.id },
-          _react2.default.createElement('input', { type: 'checkbox', id: seat.id, value: seat.position, onClick: function onClick() {
-              _this2.props.setSeatsBooked(seat.id);
-            } }),
-          _react2.default.createElement(
-            'label',
-            null,
-            'Seat Position ',
-            seat.position
-          )
-        );
-      });
       return _react2.default.createElement(
         'div',
         null,
-        _react2.default.createElement(
-          'h2',
-          null,
-          'Select Seats!'
-        ),
-        _react2.default.createElement(
-          'div',
-          null,
-          seatList
-        )
+        'Total Cost: ',
+        this.props.flightSelected.price_per_seat * this.props.seatsBooked.length
       );
     }
   }]);
 
-  return SeatSelection;
+  return TotalCost;
 }(_react2.default.Component);
 
-exports.default = SeatSelection;
+exports.default = TotalCost;
 
 /***/ })
 /******/ ]);

@@ -38,13 +38,13 @@ class PlushMars extends React.Component {
         month: 1,
         year: 2018,
       },
-      numberOfSeats: 1,
-      flightData: null,
-      searchClicked: false,
+      numberOfSeats: 1, //number of seats selected in the dropdown box
+      flightData: null, //data set back from get request after searching for flight
+      searchClicked: false, //set to true when search button clicked
       flightBooked: null, // flight booked information
       flightBookedConf: null, // flight confirmation information
       flightSelected: null,
-      seatsBooked: [], //ff
+      seatsBooked: [], //list of seat IDs which the user wants to book for flight
 
       //Error state variables
       currentDateError: false,
@@ -78,7 +78,7 @@ class PlushMars extends React.Component {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        //send the flight ID as a parameter in the bod y
+        //send the flight ID as a parameter in the body
         flight_id: this.state.flightSelected.id,
         seats: this.state.seatsBooked,
       })
@@ -244,6 +244,7 @@ class PlushMars extends React.Component {
     });
   }
 
+  //function which renders the Search Butto
   renderNewSearchButton(){
     if(this.state.searchClicked){
       return(
@@ -254,6 +255,8 @@ class PlushMars extends React.Component {
     }
   }
 
+  //function which is called when checkboxes are checked in seat selection menu.
+  // sets the state of which seats are booked
   setSeatsBooked(seat_id){
     var seatList = this.state.seatsBooked;
     if(seatList.includes(seat_id)){
@@ -263,7 +266,6 @@ class PlushMars extends React.Component {
     else{
       seatList.push(seat_id);
     }
-    console.log(seatList)
     this.setState({
       seatsBooked: seatList,
     })
@@ -326,8 +328,10 @@ class PlushMars extends React.Component {
         )}
 
         {this.state.flightSelected && !this.state.flightBookedConf &&(
-            <SeatSelection flightSelected={this.state.flightSelected}
+            <SeatSelection
+              flightSelected={this.state.flightSelected}
               setSeatsBooked={this.setSeatsBooked}
+              seatsBooked={this.state.seatsBooked}
             />
         )}
 

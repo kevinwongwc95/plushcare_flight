@@ -1,6 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import TotalCost from './TotalCost'
+
 class SeatSelection extends React.Component {
   render() {
     var seatList = this.props.flightSelected.available_seats.map(seat=>{
@@ -19,6 +21,7 @@ class SeatSelection extends React.Component {
         <div>
           {seatList}
         </div>
+        <TotalCost flightSelected={this.props.flightSelected} seatsBooked={this.props.seatsBooked}/>
       </div>
     );
   }

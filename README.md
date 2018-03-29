@@ -9,7 +9,6 @@ When searching for flights, a GET request with `numberOFSeats`, `departure_date`
 ## Issues
 The components were originally maintaining their own state, when they could have been stateless. I took the state out of the original components and maintained state in the outermost component `app.jsx`.
 
-
 ### API
 I noticed the GET request to `API_URL/flights/search` was not working if either `depart_date` or `return_date` was provided as a parameter. From using Postman, and testing, it seemed like regardless of what was sent besides those parameters, random data would be returned.
 
@@ -22,10 +21,13 @@ Outermost component of the app, which manages the state of the application which
 Used to select Departure date and Returning flight date. Through an `onChange` function passed as props, the state in `App.jsx` is updated to reflect the current values in the fields.
 
 #### `FlightSelector.jsx`
-Displays in a table view the information about each flight returned when clicking the search button which fills the state with a json object of the response from a GET request. When clicking the buttton to book a flight it calls the `bookFlight`, which will then initiate a POST request with the flight_id of the flight associated with the button id, which is the same as the flight_id.
+Displays in a table view the information about each flight returned when clicking the search button which fills the state with a JSON object of the response from a GET request. When clicking the button to book a flight it calls the `bookFlight`, which will then initiate a POST request with the flight_id of the flight associated with the button id, which is the same as the flight_id.
 
 #### `Confirmation.jsx`
 Rendered when the post request has returned successfully with information and updated `flightBookedConf` state variable. The component displays the basic information from the result of the post request.
+
+#### `TotalCost.jsx`
+Displays the total cost of the flight based on the seats selected and the price per seat of the flight selected.
 
 ## State variables & Management
 
